@@ -10,7 +10,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-PATH = 'C:\\Users\\Daniel\\Documents\\GitHub\\flower-id\\nonResized'
+#PATH = 'C:\\Users\\Daniel\\Documents\\GitHub\\flower-id\\nonResized'
+PATH = 'C:\\Users\\tonylizj\\Documents\\GitHub\\flower-id\\nonResized'
 
 train_dir = os.path.join(PATH, 'train')
 validation_dir = os.path.join(PATH, 'validation')
