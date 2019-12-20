@@ -19,9 +19,9 @@ def predict(model, label_dir, input_dir):
 
     predictions = model.predict_generator(input_data_gen)
     pred_labels = predictions.argmax(axis=-1)
+    filenames = input_data_gen.filenames
     for i in range(len(pred_labels)):
-        print("Species: " + str(labels[pred_labels[i]]) + " - Confidence: " + str(predictions[i][pred_labels[i]]))
-    print(input_data_gen.filenames)
+        print("File " + filenames[i] + " is species: " + str(labels[pred_labels[i]]) + " - Confidence: " + str(predictions[i][pred_labels[i]]))
 
 
 predict(model, label_dir, input_dir)
