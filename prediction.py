@@ -2,6 +2,9 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.models import load_model
 import os
 
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 cwd = os.getcwd()
 model = load_model('model.h5')
 label_dir = os.path.join(cwd, 'nonResized\\train')
