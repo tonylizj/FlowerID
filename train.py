@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 batch_size = 128
-epochs = input("Number of epochs: ")
+epochs = int(input("Number of epochs: "))
 IMG_HEIGHT = 200
 IMG_WIDTH = 200
 
