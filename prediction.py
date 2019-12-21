@@ -1,22 +1,14 @@
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator
+from keras.models import load_model
 import os
-import time
-import tensorflow as tf
-
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
-
-config = ConfigProto()
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
 
 cwd = os.getcwd()
-model = tf.keras.models.load_model("model.h5")
+model = load_model('model.h5')
 label_dir = os.path.join(cwd, 'nonResized\\train')
 input_dir = os.path.join(cwd, 'input')
 
 
-def predict(model, label_dir, input_dir):
+def predict():
     labels = [i for i in os.listdir(label_dir)]
     input_gen = ImageDataGenerator(rescale=1. / 255)
     input_data_gen = input_gen.flow_from_directory(batch_size=1,
@@ -33,4 +25,4 @@ def predict(model, label_dir, input_dir):
               str(predictions[i][pred_labels[i]]))
 
 
-predict(model, label_dir, input_dir)
+predict()
