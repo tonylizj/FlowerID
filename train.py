@@ -4,6 +4,8 @@ import os
 import matplotlib.pyplot as plt
 
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 batch_size = 128
 epochs = int(input("Number of epochs: "))
 IMG_HEIGHT = 200
