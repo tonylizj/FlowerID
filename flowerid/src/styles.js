@@ -33,4 +33,27 @@ export default StyleSheet.create({
         width: 80,
         height: 80,
     },
+    resultTextHeader: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    marginTop: 12,
+    textAlign: 'center'
+    },
+    prediction: {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: '100%',
+    },
+    resultClass: {
+      fontSize: 16,
+      fontWeight: 'bold'
+    },
+    resultProb: {
+      fontSize: 16,
+      marginLeft: 5
+    }
   });
