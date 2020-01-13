@@ -11,6 +11,7 @@ var jpeg = require('jpeg-js');
 const modelJson = require('./model/model.json');
 const modelWeights = require('./model/model.bin');
 var RNFS = require('react-native-fs');
+const classes = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip'];
 
 
 export default class CameraPage extends Component {
@@ -45,7 +46,7 @@ export default class CameraPage extends Component {
     const jpegData = Buffer.from(rawImageData.base64 ,'base64');
     const { width, height, data } = jpeg.decode(jpegData, TO_UINT8ARRAY);
     // Drop the alpha channel info for mobilenet
-    const buffer = new Uint8Array(width * height * 3);
+    const buffer = new Uint8Array(200 * 200 * 3);
     let offset = 0; // offset into original data
     for (let i = 0; i < buffer.length; i += 3) {
       buffer[i] = data[offset];
@@ -54,7 +55,7 @@ export default class CameraPage extends Component {
 
       offset += 4;
     }
-    return tf.tensor3d(buffer, [null, height, width, 3]);
+    return tf.tensor4d(buffer, [1, 200, 200, 3]);
   }
 
   inference = async() => {
@@ -65,14 +66,15 @@ export default class CameraPage extends Component {
     const rawImageData = await response.arrayBuffer();
     const imageTensor = this.imageToTensor(rawImageData)
     */
-    const imageTensor = this.imageToTensor(image);
+    var imageTensor = this.imageToTensor(image);
     /*
     const imageTensor = this.imgToBlob()
     */
-    console.log(imageTensor);
     const pred = await model.predict(imageTensor);
+    const winner = classes[pred.argMax().dataSync()[0]];
+    console.log(winner);
     this.setState({
-      predictions: pred,
+      prediction: winner,
       predicted: true,
     })
   }
@@ -84,14 +86,12 @@ export default class CameraPage extends Component {
       {predicted ?
         <View>
           <Text style={styles.resultTextHeader}>Results</Text>
-          {prediction.map((pred, i) => {
-            return (
-              <View key={i}>
-                <Text style={styles.resultClass}>{pred.className}</Text>
-                <Text style={styles.resultProb}>{pred.probability}</Text>
+              <View>
+                <Text style={styles.resultClass}>{prediction}</Text>
+                <TouchableOpacity style={styles.capture} onPress={() => this.setState({ predicted: false, captured: false })}>
+                  <View styles={styles.captureBtn}></View>
+                </TouchableOpacity>
               </View>
-            );
-          })}
         </View>
       :
       <View style={styles.resultTextHeader}>
@@ -111,7 +111,7 @@ export default class CameraPage extends Component {
       /*
       RNFS.moveFile(data.uri, path);
       */
-      this.setState({ captured: true, image: data, predicted: false });
+      this.setState({ captured: true, image: data });
       await this.inference();
     }
   };
