@@ -8,13 +8,13 @@ import { bundleResourceIO, fetch } from '@tensorflow/tfjs-react-native';
 import base64 from 'react-native-base64';
 var jpeg = require('jpeg-js');
 
-const modelJson = require('./model/model.json');
-const modelWeights = require('./model/model.bin');
+const modelJson = require('../android/app/src/main/assets/model/model.json');
+const modelWeights = require('../android/app/src/main/assets/model/model.bin');
 var RNFS = require('react-native-fs');
 const classes = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip'];
 
 
-export default class CameraPage extends Component {
+export default class CameraPage extends Component {f4x
   constructor(props) {
     super(props);
     this.state = {
@@ -38,6 +38,7 @@ export default class CameraPage extends Component {
     /*
     const model = await mobilenet.load();
     */
+    console.log("ready");
     this.setState ({ modelReady: true, model: model })
   }
 
@@ -106,6 +107,7 @@ export default class CameraPage extends Component {
     if (this.camera) {
       const options = { quality: 0.5, base64: true };
       const data = await this.camera.takePictureAsync(options);
+      console.log(data.uri);
       const file = data.uri.split("/");
       const path = "file:///sdcard/Android/data/com.flowerid/files/" + file[file.length - 1];
       /*
