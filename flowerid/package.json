@@ -10,7 +10,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@react-native-community/async-storage": "^1.7.1",
+    "@react-native-community/async-storage": "github:react-native-community/react-native-async-storage",
+    "@react-native-community/image-editor": "^2.2.0",
     "@tensorflow-models/mobilenet": "^2.0.4",
     "@tensorflow/tfjs": "^1.5.1",
     "@tensorflow/tfjs-react-native": "0.1.0-alpha.2",
@@ -24,7 +25,8 @@
     "react-native-camera": "^3.15.1",
     "react-native-fs": "^2.16.2",
     "react-native-image-base64": "^0.1.4",
-    "react-native-unimodules": "^0.7.0"
+    "react-native-unimodules": "^0.7.0",
+    "sharp": "^0.23.4"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
