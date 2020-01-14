@@ -6,15 +6,20 @@ import styles from './styles';
 import * as tf from '@tensorflow/tfjs';
 import { bundleResourceIO, fetch } from '@tensorflow/tfjs-react-native';
 import base64 from 'react-native-base64';
+import ImageEditor from '@react-native-community/image-editor';
+import ImgToBase64 from 'react-native-image-base64';
 var jpeg = require('jpeg-js');
-
-const modelJson = require('../android/app/src/main/assets/model/model.json');
-const modelWeights = require('../android/app/src/main/assets/model/model.bin');
 var RNFS = require('react-native-fs');
 const classes = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip'];
+/*
+const modelJson = RNFS.readFileAssets('model/model.json','base64');
+const modelWeights = RNFS.readFileAssets('model/model.bin','base64');
+*/
+const modelJson = require('../android/app/src/main/assets/model/model.json');
+const modelWeights = require('../android/app/src/main/assets/model/model.bin');
 
 
-export default class CameraPage extends Component {f4x
+export default class CameraPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,6 +27,7 @@ export default class CameraPage extends Component {f4x
       modelReady: false,
       prediction: [],
       image: null,
+      imageUri: null,
       captured: false,
       model: null,
       predicted: false,
@@ -72,18 +78,23 @@ export default class CameraPage extends Component {f4x
     const imageTensor = this.imgToBlob()
     */
     const pred = await model.predict(imageTensor);
-    const winner = classes[pred.argMax().dataSync()[0]];
-    console.log(winner);
+    const probas = pred.arraySync();
+    const winner = probas[0].map((x, i) => [x, i]).reduce((r ,a) => (a[0] > r[0] ? a : r))[1];
+
+    console.log(pred);
+    console.log(probas);
+    console.log(classes[winner]);
+
     this.setState({
-      prediction: winner,
+      prediction: classes[winner],
       predicted: true,
     })
   }
 
   renderPrediction() {
-    const { prediction, image, predicted } = this.state;
+    const { prediction, imageUri, predicted } = this.state;
     return (
-      <ImageBackground source={ {uri: image.uri} } style={styles.prediction}>
+      <ImageBackground source={ {uri: imageUri} } style={styles.prediction}>
       {predicted ?
         <View>
           <Text style={styles.resultTextHeader}>Results</Text>
@@ -105,16 +116,35 @@ export default class CameraPage extends Component {f4x
 
   takePicture = async() => {
     if (this.camera) {
-      const options = { quality: 0.5, base64: true };
+      const options = { quality: 0.5, base64: true,
+                        width: 250};
       const data = await this.camera.takePictureAsync(options);
-      console.log(data.uri);
-      const file = data.uri.split("/");
-      const path = "file:///sdcard/Android/data/com.flowerid/files/" + file[file.length - 1];
+      console.log(data);
+
+
+      /*
+      var cropUrl;
+
+      const cropData = {
+        offset: {x: 0, y: 0},
+        size: {width: data.width, height: data.height},
+        //displaySize: {width: 200, height: 200}
+
+      }
+      ImageEditor.cropImage(data.uri, cropData).then(url => cropUrl = url)
+      console.log(cropUrl)
+      var newimg;
+      ImgToBase64.getBase64String(cropUrl).then(base64String => newimg = base64String);
+      console.log(newimg)
+
+
       /*
       RNFS.moveFile(data.uri, path);
+      const file = data.uri.split("/");
+      const path = "file:///sdcard/Android/data/com.flowerid/files/" + file[file.length - 1];
       */
-      this.setState({ captured: true, image: data });
-      await this.inference();
+      this.setState({ captured: true, image: data, imageUri: data.uri });
+      this.inference();
     }
   };
 
