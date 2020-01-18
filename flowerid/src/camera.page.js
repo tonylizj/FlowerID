@@ -1,10 +1,11 @@
 'use strict';
+
 import React, { Component } from 'react';
 import { AppRegistry, StyleSheet, Text, TouchableOpacity, View, Image, ImageBackground } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import styles from './styles';
 import * as tf from '@tensorflow/tfjs';
-import { bundleResourceIO, fetch } from '@tensorflow/tfjs-react-native';
+import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
 import base64 from 'react-native-base64';
 
 var jpeg = require('jpeg-js');
@@ -13,15 +14,18 @@ var RNFS = require('react-native-fs');
 /*
 var modelJson, modelWeights;
 RNFS.readFileAssets('model/model.json').then((file) => modelJson = JSON.parse(file));
-RNFS.readFileAssets('model/model.bin').then((file) => modelWeights = file);
+RNFS.readFileAssets('model/model.bin', 'base64').then((file) => modelWeights = file);
 */
-const modelJson = require('./model/model.json');
-const modelWeights = require('./model/model.bin');
+
+const modelWeights = require('@model/model.bin');
+const modelJson = require('@model/model.json');
+
 const classes = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip'];
 
 
 export default class CameraPage extends Component {
   constructor(props) {
+    console.log("ready3")
     super(props);
     this.state = {
       isTfReady: false,
@@ -35,16 +39,16 @@ export default class CameraPage extends Component {
   }
 
   async componentDidMount() {
+    console.log(modelWeights)
     await tf.ready()
     this.setState({
       isTfReady: true
     })
-    console.log(modelJson)
     const model = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
     /*
     const model = await mobilenet.load();
     */
-    console.log("ready");
+    console.log("ready2");
     this.setState ({ modelReady: true, model: model })
   }
 

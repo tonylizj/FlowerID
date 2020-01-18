@@ -14,10 +14,11 @@
     "@react-native-community/image-editor": "^2.2.0",
     "@tensorflow-models/mobilenet": "^2.0.4",
     "@tensorflow/tfjs": "^1.5.1",
-    "@tensorflow/tfjs-react-native": "0.1.0-alpha.2",
+    "@tensorflow/tfjs-react-native": "0.1.0-alpha.3",
     "base-64": "^0.1.0",
     "expo-gl": "^8.0.0",
     "expo-gl-cpp": "^8.0.0",
+    "http": "0.0.0",
     "jpeg-js": "^0.3.6",
     "react": "16.9.0",
     "react-native": "0.61.5",
@@ -25,8 +26,7 @@
     "react-native-camera": "^3.15.1",
     "react-native-fs": "^2.16.2",
     "react-native-image-base64": "^0.1.4",
-    "react-native-unimodules": "^0.7.0",
-    "sharp": "^0.23.4"
+    "react-native-unimodules": "^0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
