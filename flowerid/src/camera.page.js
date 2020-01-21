@@ -1,37 +1,29 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, TouchableOpacity, View, Image, ImageBackground } from 'react-native';
+import { AppRegistry, StyleSheet, Text, TouchableOpacity, View, Image, ImageBackground, BackHandler } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import styles from './styles';
 import * as tf from '@tensorflow/tfjs';
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
-import base64 from 'react-native-base64';
+import * as IM from 'expo-image-manipulator';
 
 var jpeg = require('jpeg-js');
-var RNFS = require('react-native-fs');
-
-/*
-var modelJson, modelWeights;
-RNFS.readFileAssets('model/model.json').then((file) => modelJson = JSON.parse(file));
-RNFS.readFileAssets('model/model.bin', 'base64').then((file) => modelWeights = file);
-*/
 
 const modelWeights = require('@model/model.bin');
 const modelJson = require('@model/model.json');
 
-const classes = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip'];
-
+const classes = ['Daisy', 'Dandelion', 'Rose', 'Sunflower', 'Tulip'];
 
 export default class CameraPage extends Component {
   constructor(props) {
-    console.log("ready3")
     super(props);
     this.state = {
       isTfReady: false,
       modelReady: false,
       prediction: [],
       image: null,
+      base64: null,
       captured: false,
       model: null,
       predicted: false,
@@ -39,22 +31,15 @@ export default class CameraPage extends Component {
   }
 
   async componentDidMount() {
-    console.log(modelWeights)
     await tf.ready()
-    this.setState({
-      isTfReady: true
-    })
     const model = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
-    /*
-    const model = await mobilenet.load();
-    */
-    console.log("ready2");
-    this.setState ({ modelReady: true, model: model })
+    this.setState ({ modelReady: true, model: model, isTfReady: true })
   }
 
-  imageToTensor(rawImageData: ArrayBuffer): tf.Tensor3D {
+
+  imageToTensor(rawImageString): tf.Tensor4D {
     const TO_UINT8ARRAY = true;
-    const jpegData = Buffer.from(rawImageData.base64 ,'base64');
+    const jpegData = Buffer.from(rawImageString ,'base64');
     const { width, height, data } = jpeg.decode(jpegData, TO_UINT8ARRAY);
     // Drop the alpha channel info for mobilenet
     const buffer = new Uint8Array(200 * 200 * 3);
@@ -70,24 +55,22 @@ export default class CameraPage extends Component {
   }
 
   inference = async() => {
-    const { image, model } = this.state;
-    /*
-    const imageAssetPath = Image.resolveAssetSource(image)
-    const response = await fetch(image, {}, { isBinary: true });
-    const rawImageData = await response.arrayBuffer();
-    const imageTensor = this.imageToTensor(rawImageData)
-    */
-    var imageTensor = this.imageToTensor(image);
-    /*
-    const imageTensor = this.imgToBlob()
-    */
+    const { model, base64 } = this.state;
+    var imageTensor = this.imageToTensor(base64);
     const pred = await model.predict(imageTensor);
     const winner = classes[pred.argMax().dataSync()[0]];
-    console.log(winner);
     this.setState({
       prediction: winner,
       predicted: true,
     })
+  }
+
+  takePicture = async() => {
+      const options = { quality: 0.5, base64: true };
+      const data = await this.camera.takePictureAsync(options);
+      const { uri, width, height, base64 } = await IM.manipulateAsync(data.uri, [{resize: { width: 200, height: 200}}], { base64: true });
+      this.setState({ captured: true, image: data, base64: base64 });
+      await this.inference();
   }
 
   renderPrediction() {
@@ -95,17 +78,17 @@ export default class CameraPage extends Component {
     return (
       <ImageBackground source={ {uri: image.uri} } style={styles.prediction}>
       {predicted ?
-        <View>
-          <Text style={styles.resultTextHeader}>Results</Text>
-              <View>
-                <Text style={styles.resultClass}>{prediction}</Text>
-                <TouchableOpacity style={styles.capture} onPress={() => this.setState({ predicted: false, captured: false })}>
-                  <View styles={styles.captureBtn}></View>
-                </TouchableOpacity>
-              </View>
+        <View style={styles.results}>
+          <Text style={styles.resultTextHeader}> Results</Text>
+          <Text style={styles.resultTextHeader}>{prediction}</Text>
+          <TouchableOpacity onPress={() => this.setState({ predicted: false, captured: false} )} style={styles.textBox}>
+            <View style={styles.captureBtn}>
+              <Text> Go Back </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       :
-      <View style={styles.resultTextHeader}>
+      <View style={styles.textBox}>
         <Text> Predicting </Text>
       </View>
      }
@@ -113,52 +96,41 @@ export default class CameraPage extends Component {
     );
   }
 
-  takePicture = async() => {
-    if (this.camera) {
-      const options = { quality: 0.5, base64: true };
-      const data = await this.camera.takePictureAsync(options);
-      console.log(data.uri);
-      const file = data.uri.split("/");
-      const path = "file:///sdcard/Android/data/com.flowerid/files/" + file[file.length - 1];
-      /*
-      RNFS.moveFile(data.uri, path);
-      */
-      this.setState({ captured: true, image: data });
-      await this.inference();
-    }
-  };
-
   render() {
     const { modelReady, isTfReady, captured } = this.state;
-      if (captured) {
-        return this.renderPrediction();
-      }
-      return (
-          <View style={styles.container}>
-              <RNCamera
-                ref={ref => {
-                  this.camera = ref;
-                }}
-                style={styles.preview}
-                type={RNCamera.Constants.Type.back}
-                flashMode={RNCamera.Constants.FlashMode.off}
-                captureAudio={false}
-                androidCameraPermissionOptions={{
-                  title: 'Permission to use camera',
-                  message: 'FlowerID need your permission to use your camera',
-                  buttonPositive: 'Ok',
-                  buttonNegative: 'Cancel',
-                }}
-              />
-              {modelReady ?
-              <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
-                <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
-                  <View style={styles.captureBtn}></View>
-                </TouchableOpacity>
-              </View>
-              :
-              <Text> Loading </Text>}
-            </View>
-      );
+    if (captured) {
+      return this.renderPrediction();
+    }
+    else {
+    return (
+      <View style={styles.container}>
+          <RNCamera
+            ref={ref => {
+              this.camera = ref;
+            }}
+            style={styles.preview}
+            type={RNCamera.Constants.Type.back}
+            flashMode={RNCamera.Constants.FlashMode.off}
+            captureAudio={false}
+            androidCameraPermissionOptions={{
+              title: 'Permission to use camera',
+              message: 'FlowerID need your permission to use your camera',
+              buttonPositive: 'Ok',
+              buttonNegative: 'Cancel',
+            }}
+          />
+
+          <View style={styles.textBox}>
+          {modelReady ?
+            <TouchableOpacity onPress={this.takePicture.bind(this)}>
+              <View style={styles.captureBtn}></View>
+            </TouchableOpacity>
+          :
+              <Text> Loading Model </Text>
+          }
+          </View>
+        </View>
+    );
+  }
   }
 }
