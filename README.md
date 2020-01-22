@@ -1,6 +1,9 @@
-# flower-id
-Soon to be app that identifies flowers
+# FlowerID - An Android app that identifies flowers taken from camera.
 
 
-dataset source:
+v0.1 alpha (currently supports 5 species: daisy, sunflower, tulip, dandelion, rose)
+
+Google Play link: coming soon (under review by Google Play for Publication)
+
+Dataset Source:
 https://www.kaggle.com/alxmamaev/flowers-recognition
