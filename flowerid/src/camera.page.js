@@ -42,7 +42,7 @@ export default class CameraPage extends Component {
     const jpegData = Buffer.from(rawImageString ,'base64');
     const { width, height, data } = jpeg.decode(jpegData, TO_UINT8ARRAY);
     // Drop the alpha channel info for mobilenet
-    const buffer = new Uint8Array(200 * 200 * 3);
+    const buffer = new Uint8Array(width * height * 3);
     let offset = 0; // offset into original data
     for (let i = 0; i < buffer.length; i += 3) {
       buffer[i] = data[offset];
@@ -51,16 +51,23 @@ export default class CameraPage extends Component {
 
       offset += 4;
     }
-    return tf.tensor4d(buffer, [1, 200, 200, 3]);
+    return tf.tensor4d(buffer, [1, width, height, 3]);
+  }
+
+  getMax(array) {
+    return [].map.call(array, (x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
   }
 
   inference = async() => {
     const { model, base64 } = this.state;
     var imageTensor = this.imageToTensor(base64);
     const pred = await model.predict(imageTensor);
-    const winner = classes[pred.argMax().dataSync()[0]];
+    const winner = pred.dataSync();
+    console.log(winner)
+    console.log(this.getMax(winner));
+    console.log(pred.print());
     this.setState({
-      prediction: winner,
+      prediction: classes[this.getMax(winner)],
       predicted: true,
     })
   }
