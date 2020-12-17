@@ -1,9 +1,8 @@
-# FlowerID - An Android app that identifies flowers taken from camera.
+# FlowerID - An Android app that identifies photos of flowers taken from camera using a convolutional neural network.
 
+## This repository contains files for the model. The sources for the FlowerID Android App can be found at https://github.com/tonylizj/FlowerID-App.
 
-v0.1 alpha (currently supports 5 species: daisy, sunflower, tulip, dandelion, rose)
-
-Google Play link: https://play.google.com/store/apps/details?id=com.flowerid
+Google Play Link: https://play.google.com/store/apps/details?id=com.flowerid
 
 Dataset Source:
 https://www.kaggle.com/alxmamaev/flowers-recognition

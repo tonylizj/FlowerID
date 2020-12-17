@@ -1,7 +1,0 @@
-{
-  "name": "flowerid",
-  "displayName": "flowerid",
-  "packagerOpts": {
-    "config": "metro.config.js"
-  }
-}
