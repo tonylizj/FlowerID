@@ -1,3 +1,7 @@
+<p align="left">
+    <img src="https://github.com/tonylizj/FlowerID-App/blob/master/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" height="128">
+</p>
+
 # FlowerID - An Android app that identifies photos of flowers taken from camera using a convolutional neural network.
 
 ## This repository contains files for the model. The sources for the FlowerID Android App can be found at https://github.com/tonylizj/FlowerID-App.
